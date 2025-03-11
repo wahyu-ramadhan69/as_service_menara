@@ -1,0 +1,134 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int         @id @default(autoincrement())
+  username  String      @unique
+  password  String?
+  role      Role
+  email     String?
+  jenis     JenisUser?
+  id_divisi Int
+  divisi    Divisi      @relation(fields: [id_divisi], references: [id])
+}
+
+model Divisi {
+  id           Int         @id @default(autoincrement())
+  nama         String      @unique
+  cpu          Int
+  storage      Int
+  ram          Int
+  nama_storage String?
+  head         String?
+  users        User[]
+}
+
+model Pengajuan {
+  id                Int            @id @default(autoincrement())
+  id_template       Int
+  template          Template       @relation(fields: [id_template], references: [id])
+  cpu               Int?
+  ram               Int?
+  storage           Int?
+  segment           String?
+  status_pengajuan  String
+  nama_aplikasi     String
+  tanggal_pengajuan DateTime       @default(now())
+  tanggal_perubahan DateTime       @updatedAt
+  tujuan_pengajuan  String
+  jenis_pengajuan   JenisPengajuan
+  vmid              Int?
+  nodes             String?
+  nama_baru         String?
+  vmid_old          Int?
+  user              String
+  divisi            String
+}
+
+model Server {
+  id          Int       @id @default(autoincrement())
+  vmid        Int       @unique
+  segment     String?
+  id_ip       Int
+  ip_address  IpAddress @relation(fields: [id_ip], references: [id])
+  id_template Int
+  template    Template  @relation(fields: [id_template], references: [id])
+  user        String
+  divisi      String
+}
+
+model IpAddress {
+  id          Int      @id @default(autoincrement())
+  ip          String   @unique
+  nama_server String?
+  status      Status   @default(AVAILABLE)
+  type        IpType
+  server      Server[]
+}
+
+model Template {
+  id             Int         @id @default(autoincrement())
+  nama_template  String      @map("nama_template")
+  type_os        String      @map("type_os")
+  vmid           Int         @unique
+  pengajuan      Pengajuan[]
+  server         Server[]
+  nodes          String
+  keterangan     String?
+  tanggal_dibuat DateTime    @default(now()) @map("tanggal_dibuat")
+
+  @@map("templates")
+}
+
+model LogVM {
+  id               Int      @id @default(autoincrement())
+  user             String
+  divisi           String
+  activity         Activity
+  vmid             Int
+  tujuan           String?
+  tanggal_activity DateTime @default(now())
+}
+
+enum Activity {
+  PowerOff
+  PowerOn
+  Restart
+  Console
+  IPSync
+}
+
+enum IpType {
+  INTERNAL
+  BACKEND
+  FRONTEND
+}
+
+enum Role {
+  USER
+  HEAD
+  ADMIN
+}
+
+enum JenisUser {
+  Ldap
+  Local
+}
+
+enum Status {
+  AVAILABLE
+  NOT_AVAILABLE
+}
+
+enum JenisPengajuan {
+  New
+  Existing
+  Delete
+  Perubahan
+}

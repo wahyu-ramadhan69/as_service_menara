@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  font-family: "San Francisco", system-ui;
+}
+
+.text-xxs {
+  font-size: 0.625rem; /* Smaller than text-xs */
+}

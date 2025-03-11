@@ -1,0 +1,57 @@
+services:
+  nextcloud:
+    image: nextcloud
+    container_name: nextcloud
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - /mnt/data:/var/www/html
+    extra_hosts:
+      - onlyoffice.idofocus.co.id:10.10.30.3
+      - nextcloud1.idofocus.co.id:10.10.30.24
+      - nextcloud2.idofocus.co.id:10.10.30.102
+      - drive.idofocus.co.id:10.10.40.6
+    environment:
+      - MYSQL_PASSWORD=P@ssw0rd
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=root
+      - MYSQL_HOST=192.168.1.133
+      - NEXTCLOUD_ADMIN_USER=admin
+      - NEXTCLOUD_ADMIN_PASSWORD=admin
+      - OBJECTSTORE_S3_BUCKET=nextcloud
+      - OBJECTSTORE_S3_HOST=10.10.30.100
+      - OBJECTSTORE_S3_PORT=9000
+      - OBJECTSTORE_S3_KEY=nextcloud
+      - OBJECTSTORE_S3_SECRET=P@ssw0rd
+      - OBJECTSTORE_S3_REGION=us-east-1
+      - OBJECTSTORE_S3_SSL=false
+      - NEXTCLOUD_TRUSTED_DOMAINS=10.10.30.102, 10.10.30.24, 10.10.30.3, 10.10.40.6, *.idofocus.co.id
+      - REDIS_HOST=10.10.30.100
+      - REDIS_HOST_PORT=6379
+      - REDIS_HOST_PASSWORD=P@ssw0rd
+      - PHP_UPLOAD_MAX_FILESIZE=10G
+      - PHP_POST_MAX_SIZE=10G
+      - PHP_MEMORY_LIMIT=1024M
+
+    networks:
+      - nextcloud
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /home/bcafmaster/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - nextcloud
+    networks:
+      - nextcloud
+
+networks:
+  nextcloud:
+    name: nextcloud
