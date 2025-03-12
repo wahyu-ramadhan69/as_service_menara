@@ -78,11 +78,14 @@ export async function PUT(
     };
 
     if (pengajuan.jenis_pengajuan === "New") {
+      let selectedNode = null;
+
       let ipAddress;
       let bridge: string;
 
       if (pengajuan.segment === "internal") {
-        bridge = "vmbr0";
+        bridge = "INT";
+        selectedNode = "proxmox3";
         ipAddress = await prisma.ipAddress.findFirst({
           where: {
             type: "INTERNAL",
@@ -91,6 +94,7 @@ export async function PUT(
         });
       } else if (pengajuan.segment === "backend") {
         bridge = "BE";
+        selectedNode = "proxmox2";
         ipAddress = await prisma.ipAddress.findFirst({
           where: {
             type: "BACKEND",
@@ -98,6 +102,7 @@ export async function PUT(
           },
         });
       } else if (pengajuan.segment === "frontend") {
+        selectedNode = "proxmox3";
         bridge = "FE";
         ipAddress = await prisma.ipAddress.findFirst({
           where: {
@@ -141,40 +146,6 @@ export async function PUT(
           status_pengajuan: "Proses pengerjaan",
         },
       });
-
-      const nodesResponse = await axios.get(
-        `${process.env.PROXMOX_API_URL}/nodes`,
-        {
-          headers,
-          httpsAgent,
-        }
-      );
-
-      const nodes = nodesResponse.data.data;
-
-      let selectedNode = null;
-      let minUsage = Infinity;
-
-      for (const node of nodes) {
-        const nodeStatusResponse = await axios.get(
-          `${process.env.PROXMOX_API_URL}/nodes/${node.node}/status`,
-          {
-            headers,
-            httpsAgent,
-          }
-        );
-
-        const nodeStatus = nodeStatusResponse.data.data;
-        const cpuUsage = nodeStatus.cpu;
-        const ramUsage = nodeStatus.memory.used / nodeStatus.memory.total;
-
-        const usageScore = cpuUsage + ramUsage;
-
-        if (usageScore < minUsage) {
-          minUsage = usageScore;
-          selectedNode = node.node;
-        }
-      }
 
       if (!selectedNode) {
         return respondWithError(`No suitable node found for cloning.`, 401);
