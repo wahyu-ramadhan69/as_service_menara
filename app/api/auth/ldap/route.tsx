@@ -3,10 +3,10 @@ import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { respondWithError, respondWithSuccess } from "@/app/lib/Response";
 import { HttpsProxyAgent } from "https-proxy-agent";
-import fetch from "node-fetch"; // Gunakan node-fetch untuk mendukung proxy
+import fetch from "node-fetch";
 
 const prisma = new PrismaClient();
-const PROXY_URL = process.env.PROXY_URL || "http://proxy.intra.bca.co.id:8080";
+const PROXY_URL = process.env.PROXY_URL || "http://10.1.10.50:8080";
 const JWT_SECRET = process.env.JWT_SECRET || "rahasia";
 const AUTH_API_URL = "https://api.bcafinance.co.id/authenticateuserv2";
 const agent = new HttpsProxyAgent(PROXY_URL);
@@ -15,7 +15,6 @@ export async function POST(req: NextRequest) {
   const { username, password } = await req.json();
 
   try {
-    // Menggunakan `node-fetch` dengan proxy
     const apiResponse = await fetch(AUTH_API_URL, {
       method: "POST",
       headers: {
