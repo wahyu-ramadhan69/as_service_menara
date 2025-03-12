@@ -2,19 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { respondWithError, respondWithSuccess } from "@/app/lib/Response";
+import fetch from "node-fetch"; // Gunakan node-fetch
 import { HttpsProxyAgent } from "https-proxy-agent";
-import fetch from "node-fetch";
 
 const prisma = new PrismaClient();
-const PROXY_URL = process.env.PROXY_URL || "http://proxy.intra.bca.co.id";
+
 const JWT_SECRET = process.env.JWT_SECRET || "rahasia";
 const AUTH_API_URL = "https://api.bcafinance.co.id/authenticateuserv2";
-const agent = new HttpsProxyAgent(PROXY_URL);
+
+// Konfigurasi Proxy
+const PROXY_URL = process.env.PROXY_URL || "http://10.1.10.50:8080"; // Proxy yang benar
+const agent = new HttpsProxyAgent(PROXY_URL); // Buat proxy agent
 
 export async function POST(req: NextRequest) {
   const { username, password } = await req.json();
 
   try {
+    console.log("Menggunakan proxy:", PROXY_URL);
+
+    // Gunakan fetch dengan proxy di Node.js
     const apiResponse = await fetch(AUTH_API_URL, {
       method: "POST",
       headers: {
@@ -28,7 +34,7 @@ export async function POST(req: NextRequest) {
           Password: password,
         },
       }),
-      agent, // Menggunakan proxy
+      agent,
     });
 
     if (!apiResponse.ok) {
@@ -37,32 +43,23 @@ export async function POST(req: NextRequest) {
         JSON.stringify({
           message: errorData.message || "Authentication failed",
         }),
-        {
-          status: apiResponse.status,
-        }
+        { status: apiResponse.status }
       );
     }
 
     const authData = (await apiResponse.json()) as {
-      AuthenticateUserRs?: {
-        ResponseHeader?: {
-          ErrorDescription?: string;
-        };
+      AuthenticateUserRs: {
+        ResponseHeader: { ErrorDescription: string };
       };
     };
 
-    const ErrorDescription =
-      authData.AuthenticateUserRs?.ResponseHeader?.ErrorDescription ||
-      "Authentication failed";
-
+    const { ErrorDescription } = authData.AuthenticateUserRs.ResponseHeader;
     if (ErrorDescription !== "Success") {
       return new NextResponse(
         JSON.stringify({
-          message: ErrorDescription,
+          message: ErrorDescription || "Authentication failed",
         }),
-        {
-          status: 401,
-        }
+        { status: 401 }
       );
     }
 
@@ -84,9 +81,7 @@ export async function POST(req: NextRequest) {
         divisi: user.divisi.nama,
       },
       JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
+      { expiresIn: "1h" }
     );
 
     const response = respondWithSuccess("Login successful", { token }, 200);
