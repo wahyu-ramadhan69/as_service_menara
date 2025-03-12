@@ -19,8 +19,6 @@ export async function POST(req: NextRequest) {
 
   try {
     console.log("Menggunakan proxy:", PROXY_URL);
-
-    // Gunakan fetch dengan proxy di Node.js
     const apiResponse = await fetch(AUTH_API_URL, {
       method: "POST",
       headers: {
@@ -36,6 +34,16 @@ export async function POST(req: NextRequest) {
       }),
       agent,
     });
+
+    const contentType = apiResponse.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      const errorText = await apiResponse.text(); // Ambil teks HTML yang dikembalikan server
+      console.error("Unexpected response format:", errorText);
+      return new NextResponse(
+        JSON.stringify({ message: "Invalid response format" }),
+        { status: 500 }
+      );
+    }
 
     if (!apiResponse.ok) {
       const errorData = (await apiResponse.json()) as { message?: string };
