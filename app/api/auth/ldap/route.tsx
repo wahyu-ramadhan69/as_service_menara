@@ -6,7 +6,7 @@ import { HttpsProxyAgent } from "https-proxy-agent";
 import fetch from "node-fetch";
 
 const prisma = new PrismaClient();
-const PROXY_URL = process.env.PROXY_URL || "http://10.1.10.50:8080";
+const PROXY_URL = process.env.PROXY_URL || "http://proxy.intra.bca.co.id";
 const JWT_SECRET = process.env.JWT_SECRET || "rahasia";
 const AUTH_API_URL = "https://api.bcafinance.co.id/authenticateuserv2";
 const agent = new HttpsProxyAgent(PROXY_URL);
