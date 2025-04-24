@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     });
 
     const storages = await axios.get(
-      `${process.env.PROXMOX_API_URL}/nodes/192-168-1-234/storage`,
+      `${process.env.PROXMOX_API_URL}/nodes/proxmox1/storage`,
       {
         headers,
         httpsAgent,

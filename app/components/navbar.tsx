@@ -67,6 +67,7 @@ const Navbar = () => {
       { href: "/admin/team", label: "Teams", icon: <GoPeople /> },
       { href: "/admin/users", label: "Users", icon: <GoPerson /> },
       { href: "/admin/ip", label: "IP Address", icon: <GoQuote /> },
+      { href: "/admin/host", label: "Host", icon: <GoQuote /> },
       { href: "/admin/template", label: "Template", icon: <GoStack /> },
       { href: "/admin/projects", label: "Server", icon: <FiServer /> },
     ],

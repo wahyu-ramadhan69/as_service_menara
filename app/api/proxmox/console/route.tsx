@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await axios.post(
-      `https://192.168.1.234:8006/api2/json/nodes/${node}/qemu/${vmid}/vncproxy`,
+      `https://10.20.210.20:8006/api2/json/nodes/${node}/qemu/${vmid}/vncproxy`,
       { websocket: 1, "generate-password": 1 },
       {
         headers,

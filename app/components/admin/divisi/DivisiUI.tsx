@@ -33,8 +33,6 @@ const DivisiUi: React.FC = () => {
     try {
       const res = await fetch("/api/divisi");
 
-      console.log(res);
-
       if (!res.ok) {
         throw new Error("Network response was not ok");
       }

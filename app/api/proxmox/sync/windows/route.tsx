@@ -15,8 +15,9 @@ export async function POST(request: Request) {
 
   const { username, divisi } = decodedToken;
 
-  const { ipAddress, subnetMask, gateway, dnsServer, node, vmid } =
-    await request.json();
+  const { ipAddress, subnetMask, gateway, node, vmid } = await request.json();
+
+  console.log(ipAddress, subnetMask, gateway, node, vmid);
 
   const command = [
     "powershell",
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
       $ipAddress = "${ipAddress}"; 
       $subnetMask = "${subnetMask}"; 
       $gateway = "${gateway}"; 
-      $dnsServer = "${dnsServer}";
+      $dnsServer = "10.20.210.15";
 
       # Pastikan interface menggunakan DHCP terlebih dahulu untuk reset pengaturan
       Write-Host "Mengatur interface $interfaceAlias ke DHCP...";

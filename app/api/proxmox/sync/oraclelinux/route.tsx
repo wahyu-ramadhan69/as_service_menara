@@ -26,7 +26,7 @@ interface-name=${interfaceName}
 [ipv4]
 method=manual
 addresses=${ipAddress}/${prefix};${gateway};
-dns=192.168.29.12;192.168.29.101;
+dns=10.20.210.15;
 
 [ipv6]
 method=ignore

@@ -34,7 +34,7 @@ network:
       addresses:
         - ${ipAddress}/24
       nameservers:
-        addresses: [192.168.29.12, 192.168.29.101]
+        addresses: [10.20.210.15]
       routes:
         - to: 0.0.0.0/0
           via: ${gateway}

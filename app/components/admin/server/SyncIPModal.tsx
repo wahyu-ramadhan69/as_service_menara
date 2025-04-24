@@ -33,15 +33,13 @@ const SyncIPModal: React.FC<SyncIPModalProps> = ({ isOpen, onClose, data }) => {
   const handlePowerOff = async () => {
     try {
       setStatusPowerOff(true);
-      console.log(data);
-
       let gateway;
       if (data?.segment === "internal") {
-        gateway = "192.168.1.1";
+        gateway = "10.20.210.1";
       } else if (data?.segment === "backend") {
-        gateway = "10.10.30.1";
+        gateway = "10.20.209.1";
       } else if (data?.segment === "frontend") {
-        gateway = "10.10.40.1";
+        gateway = "10.27.127.1";
       }
 
       const response = await fetch(

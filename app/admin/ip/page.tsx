@@ -306,12 +306,6 @@ const Page = () => {
         onSave={handleAddIpInternal}
         ipInternal={currentIpInternal}
       />
-
-      <ImportIpModal
-        isOpen={isModalImport}
-        onClose={handleCloseModalImport}
-        onSave={handleReset}
-      />
     </div>
   );
 };

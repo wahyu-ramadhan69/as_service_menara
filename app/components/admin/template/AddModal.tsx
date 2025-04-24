@@ -215,7 +215,7 @@ const AddModal: React.FC<AddModalProps> = ({
                     <option value="">Select OS</option>
                     <option value="Windows">Windows</option>
                     <option value="Ubuntu">Ubuntu</option>
-                    <option value="CentOS">CentOS</option>
+                    <option value="CentOS">RedHat</option>
                     <option value="Oracle Linux">Oracle Linux</option>
                   </select>
                 </div>

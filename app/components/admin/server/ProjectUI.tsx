@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { TfiHarddrive } from "react-icons/tfi";
 import { BsCpu, BsMemory, BsTerminalX } from "react-icons/bs";
+import { CiEdit } from "react-icons/ci";
 import {
   VscDebugRestart,
   VscDebugStart,
@@ -10,9 +11,10 @@ import {
 } from "react-icons/vsc";
 import { Menu } from "@headlessui/react";
 import { GrPowerShutdown } from "react-icons/gr";
-import { TbHandClick, TbLocationCode, TbLocationPin } from "react-icons/tb";
+import { TbLocationPin } from "react-icons/tb";
 import PowerOffModal from "./PowerOffModal";
-import { FaServer, FaUserAstronaut } from "react-icons/fa6";
+import RegisterModal from "./RegisterModal";
+import { FaUserAstronaut } from "react-icons/fa6";
 import { LiaLaptopCodeSolid } from "react-icons/lia";
 import PowerOnModal from "./PowerOnModal";
 import { AiOutlineSync } from "react-icons/ai";
@@ -45,7 +47,9 @@ const ProjectUI = () => {
   const [filter, setFilter] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedPowerOff, setSelectedPowerOff] = useState<Member | null>(null);
+  const [selectedRegister, setSelectedRegister] = useState<Member | null>(null);
   const [isPowerOffModal, setIsPowerOffModal] = useState(false);
+  const [isRegisterModal, setRegisterModal] = useState(false);
   const [selectedSync, setSelectedSync] = useState<Member | null>(null);
   const [isSyncModal, setIsSyncModal] = useState(false);
   const [selectedPowerOn, setSelectedPowerOn] = useState<Member | null>(null);
@@ -101,6 +105,11 @@ const ProjectUI = () => {
     setIsPowerOffModal(true);
   };
 
+  const handleRegister = (item: Member) => {
+    setSelectedRegister(item);
+    setRegisterModal(true);
+  };
+
   const handleSync = (item: Member) => {
     setSelectedSync(item);
     setIsSyncModal(true);
@@ -131,11 +140,26 @@ const ProjectUI = () => {
     setSelectedPowerOff(null);
   };
 
+  const closeModalRegister = async () => {
+    setRegisterModal(false);
+    setSelectedRegister(null);
+  };
+
   const closeModalPowerOffSubmit = async () => {
     setIsPowerOffModal(false);
     setSelectedPowerOff(null);
     try {
       await new Promise((resolve) => setTimeout(resolve, 3000));
+      await fetchProjects();
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    }
+  };
+
+  const closeModalRegisterSubmit = async () => {
+    setIsRestartModal(false);
+    setSelectedRegister(null);
+    try {
       await fetchProjects();
     } catch (error) {
       console.error("Error refreshing data:", error);
@@ -319,9 +343,9 @@ const ProjectUI = () => {
                           ? "/ubuntu.png"
                           : item.type_os === "Windows"
                           ? "/windows.png"
-                          : item.type_os === "Centos"
-                          ? "/centos.png"
-                          : item.type_os === "OracleLinux"
+                          : item.type_os === "RedHat"
+                          ? "/redhat.svg"
+                          : item.type_os === "Oracle Linux"
                           ? "/oracle.png"
                           : "/proxmox.png"
                       }
@@ -330,7 +354,6 @@ const ProjectUI = () => {
                       height={64}
                       className=" mb-4"
                     />
-
                     <div className="text-sm font-semibold mb-2">
                       {item.name}
                     </div>
@@ -441,9 +464,19 @@ const ProjectUI = () => {
                           onClick={() => handleSync(item)}
                         >
                           <AiOutlineSync className=" text-2xl text-white mr-1" />
-                          IP Address
                         </button>
                       </div>
+                      {item.type_os === "Unknown" ? (
+                        <div className="flex justify-center w-full h-full">
+                          <button
+                            className="bg-cyan-400 text-black w-full m-1 flex justify-center items-center rounded"
+                            onClick={() => handleRegister(item)}
+                          >
+                            <CiEdit className="text-2xl text-black" /> Register
+                            VM
+                          </button>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 ))}
@@ -490,6 +523,15 @@ const ProjectUI = () => {
             onClose={closeModalPowerOff}
             onCloseSubmit={closeModalPowerOffSubmit}
             data={selectedPowerOff}
+          />
+        )}
+
+        {selectedRegister && (
+          <RegisterModal
+            isOpen={isRegisterModal}
+            onClose={closeModalRegister}
+            onCloseSubmit={closeModalRegisterSubmit}
+            data={selectedRegister}
           />
         )}
 

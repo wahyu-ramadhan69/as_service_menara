@@ -133,7 +133,6 @@ const AddPengajuanModal: React.FC<AddPengajuanModalProps> = ({
     const { name, value } = e.target;
 
     if (name === "nama_aplikasi") {
-      // Validasi untuk nama server hanya huruf, angka, dan "-"
       const regex = /^[a-zA-Z0-9-]*$/;
       if (!regex.test(value)) {
         setFieldErrors((prevErrors) => ({
@@ -142,7 +141,6 @@ const AddPengajuanModal: React.FC<AddPengajuanModalProps> = ({
         }));
         return;
       } else {
-        // Hapus error jika valid
         setFieldErrors((prevErrors) => {
           const updatedErrors = { ...prevErrors };
           delete updatedErrors[name];
@@ -864,27 +862,6 @@ const AddPengajuanModal: React.FC<AddPengajuanModalProps> = ({
                         required
                       />
                     </div>
-                  </div>
-
-                  <div className="mb-2">
-                    <label
-                      className="block text-gray-700 text-sm font-bold mb-2"
-                      htmlFor="segment"
-                    >
-                      Segment
-                    </label>
-                    <select
-                      id="segment"
-                      name="segment"
-                      value={formData.segment}
-                      onChange={handleChange}
-                      className="shadow appearance-none border rounded-full w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      required
-                    >
-                      <option value="internal">Internal</option>
-                      <option value="backend">Backend</option>
-                      <option value="frontend">Frontend</option>
-                    </select>
                   </div>
 
                   <div className="mb-4">
