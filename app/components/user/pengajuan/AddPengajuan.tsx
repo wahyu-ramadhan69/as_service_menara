@@ -656,29 +656,52 @@ const AddPengajuanModal: React.FC<AddPengajuanModalProps> = ({
                         required
                       />
                     </div>
+
+                    <div className="mb-2">
+                      <label
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                        htmlFor="segment"
+                      >
+                        Segment
+                      </label>
+                      <select
+                        id="segment"
+                        name="segment"
+                        value={formData.segment}
+                        onChange={handleChange}
+                        className="shadow appearance-none border rounded-full w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                      >
+                        <option value="internal">Internal</option>
+                        <option value="backend">Backend</option>
+                        <option value="frontend">Frontend</option>
+                      </select>
+                    </div>
+
+                    <div className="mb-2">
+                      <label
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                        htmlFor="nama_aplikasi"
+                      >
+                        Nama Server Baru
+                      </label>
+                      <input
+                        id="nama_baru"
+                        name="nama_baru"
+                        type="text"
+                        value={formData.nama_baru}
+                        onChange={handleChange}
+                        className="shadow appearance-none border rounded-full w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required
+                      />
+                      {fieldErrors.nama_aplikasi && (
+                        <p className="text-red-500 text-xs italic mt-2">
+                          {fieldErrors.nama_aplikasi}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="mb-4">
-                    <label
-                      className="block text-gray-700 text-sm font-bold mb-2"
-                      htmlFor="nama_aplikasi"
-                    >
-                      Nama Server Baru
-                    </label>
-                    <input
-                      id="nama_baru"
-                      name="nama_baru"
-                      type="text"
-                      value={formData.nama_baru}
-                      onChange={handleChange}
-                      className="shadow appearance-none border rounded-full w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                      required
-                    />
-                    {fieldErrors.nama_aplikasi && (
-                      <p className="text-red-500 text-xs italic mt-2">
-                        {fieldErrors.nama_aplikasi}
-                      </p>
-                    )}
-                  </div>
+
                   <div className="mb-4">
                     <label
                       className="block text-gray-700 text-sm font-bold mb-2"

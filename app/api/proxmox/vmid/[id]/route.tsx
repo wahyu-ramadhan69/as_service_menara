@@ -98,7 +98,9 @@ export async function GET(
       }
     );
 
-    await axios.get(
+    // console.log(vmResponse.data.data);
+
+    const configResponse = await axios.get(
       `${process.env.PROXMOX_API_URL}/nodes/${targetNode}/qemu/${id}/config`,
       {
         headers,
@@ -106,14 +108,47 @@ export async function GET(
       }
     );
 
+    const config = configResponse.data.data || {};
+
+    // Cari semua disk (yang biasanya mulai dengan scsi, virtio, atau ide)
+    const disks = Object.keys(config).filter((key) => {
+      const value = config[key];
+
+      const isDisk =
+        key.startsWith("scsi") ||
+        key.startsWith("virtio") ||
+        key.startsWith("ide");
+      const isNotController = key !== "scsihw";
+      const isNotCdrom =
+        typeof value === "string" && !value.includes("media=cdrom");
+
+      return isDisk && isNotController && isNotCdrom;
+    });
+
+    // Mapping disk dan ambil nama + ukuran
+    const diskInfo = disks.map((diskName, index) => {
+      const diskConfig = config[diskName];
+
+      let sizeMatch = diskConfig.match(/size=([0-9]+[A-Za-z]+)/);
+      let size = sizeMatch ? sizeMatch[1] : "Unknown";
+
+      return {
+        diskName,
+        size: size.replace("G", " GB"),
+      };
+    });
+
     if (!vmResponse.data) {
       return respondWithError("VM status data is empty", 500);
     }
 
     const data = {
       targetNode,
+      disk: diskInfo,
       vmStatus: vmResponse.data.data,
     };
+
+    console.log(data);
 
     return NextResponse.json(
       { message: `Berhasil mengambil informasi VM dengan ID ${id}`, data },

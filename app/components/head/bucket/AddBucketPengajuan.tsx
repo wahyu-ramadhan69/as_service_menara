@@ -133,16 +133,30 @@ const AddBucketPengajuanModal: React.FC<AddBucketPengajuanModalProps> = ({
     event.preventDefault();
     setLoadingSubmit(true);
     try {
-      const response = await fetch(
-        `/api/pengajuan/aproval/${bucketPengajuan?.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      let endpoint = "";
+      if (formData.jenis_pengajuan === "New") {
+        endpoint = `/api/pengajuan/aproval/new/${bucketPengajuan?.id}`;
+      } else if (formData.jenis_pengajuan === "Existing") {
+        endpoint = `/api/pengajuan/aproval/existing/${bucketPengajuan?.id}`;
+      } else if (formData.jenis_pengajuan === "Change") {
+        endpoint = `/api/pengajuan/aproval/change/${bucketPengajuan?.id}`;
+      } else if (formData.jenis_pengajuan === "Delete") {
+        endpoint = `/api/pengajuan/aproval/delete/${bucketPengajuan?.id}`;
+      } else {
+        toast.error("Jenis pengajuan tidak valid");
+        setLoadingSubmit(false);
+        return;
+      }
+
+      console.log(endpoint);
+
+      const response = await fetch(endpoint, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       const result = await response.json();
       if (response.ok) {

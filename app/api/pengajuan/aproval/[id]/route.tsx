@@ -116,7 +116,7 @@ export async function PUT(
           segment: segmentHost,
         },
         select: {
-          nama: true, // kita hanya butuh nama host
+          nama: true,
         },
       });
 
@@ -167,118 +167,120 @@ export async function PUT(
         );
       }
 
-      // await prisma.ipAddress.update({
-      //   where: { id: ipAddress.id },
-      //   data: { nama_server: nama_aplikasi, status: "NOT_AVAILABLE" },
-      // });
+      await prisma.ipAddress.update({
+        where: { id: ipAddress.id },
+        data: { nama_server: nama_aplikasi, status: "NOT_AVAILABLE" },
+      });
 
-      // const response = await prisma.pengajuan.update({
-      //   where: { id: Number(id) },
-      //   include: {
-      //     template: true,
-      //   },
-      //   data: {
-      //     status_pengajuan: "Proses pengerjaan",
-      //   },
-      // });
+      const response = await prisma.pengajuan.update({
+        where: { id: Number(id) },
+        include: {
+          template: true,
+        },
+        data: {
+          status_pengajuan: "Proses pengerjaan",
+        },
+      });
 
-      // if (!selectedNode) {
-      //   return respondWithError(`No suitable node found for cloning.`, 401);
-      // }
+      if (!selectedNode) {
+        return respondWithError(`No suitable node found for cloning.`, 401);
+      }
 
       setImmediate(async () => {
         try {
-          // const vmListResponse = await axios.get(
-          //   `${process.env.PROXMOX_API_URL}/cluster/resources?type=vm`,
-          //   {
-          //     headers,
-          //     httpsAgent,
-          //   }
-          // );
-          // const vmList = vmListResponse.data.data;
-          // let newid = 100;
-          // const usedIds = vmList.map((vm: { vmid: number }) => vm.vmid);
-          // while (usedIds.includes(newid)) {
-          //   newid++;
-          // }
-          // const server = await prisma.server.create({
-          //   data: {
-          //     vmid: newid,
-          //     id_template: Number(pengajuan.id_template),
-          //     id_ip: ipAddress.id,
-          //     segment: segment,
-          //     user: pengajuan.user,
-          //     divisi: pengajuan.divisi,
-          //   },
-          // });
-          // const user = await prisma.user.findUnique({
-          //   where: {
-          //     username: username,
-          //   },
-          //   include: {
-          //     divisi: true,
-          //   },
-          // });
-          // const NamaAplikasi = nama_aplikasi.replace(/\s+/g, "-");
-          // const data = {
-          //   newid,
-          //   name: `${NamaAplikasi}`,
-          //   target: `${selectedNode}`,
-          //   full: 1,
-          //   pool: pengajuan.divisi,
-          //   storage: `${user?.divisi.nama_storage}`,
-          // };
-          // const clone = await axios.post(
-          //   `${process.env.PROXMOX_API_URL}/nodes/${template.nodes}/qemu/${template.vmid}/clone`,
-          //   data,
-          //   { headers, httpsAgent }
-          // );
-          // let taskFinished = false;
-          // const upid = clone.data.data;
-          // const encodedUpid = encodeURIComponent(upid);
-          // while (!taskFinished) {
-          //   const statusResponse = await axios.get(
-          //     `${process.env.PROXMOX_API_URL}/nodes/${template.nodes}/tasks/${encodedUpid}/status`,
-          //     {
-          //       headers,
-          //       httpsAgent,
-          //     }
-          //   );
-          //   if (statusResponse.data.data.status === "stopped") {
-          //     taskFinished = true;
-          //   } else {
-          //     await new Promise((resolve) => setTimeout(resolve, 5000));
-          //   }
-          // }
-          // const config = await axios.put(
-          //   `${process.env.PROXMOX_API_URL}/nodes/${selectedNode}/qemu/${newid}/config`,
-          //   {
-          //     memory: String(pengajuan.ram),
-          //     cores: Number(pengajuan.cpu),
-          //     net0: `virtio,bridge=${bridge}`,
-          //   },
-          //   { headers, httpsAgent }
-          // );
-          // const resize = await axios.put(
-          //   `${process.env.PROXMOX_API_URL}/nodes/${selectedNode}/qemu/${newid}/resize`,
-          //   {
-          //     disk: "scsi0",
-          //     size: `+${storage - 40}G`,
-          //   },
-          //   { headers, httpsAgent }
-          // );
-          // const startVm = await axios.post(
-          //   `${process.env.PROXMOX_API_URL}/nodes/${selectedNode}/qemu/${newid}/status/start`,
-          //   {},
-          //   { headers, httpsAgent }
-          // );
-          // await prisma.pengajuan.update({
-          //   where: { id: Number(id) },
-          //   data: {
-          //     status_pengajuan: "Selesai",
-          //     vmid: newid,
-          //   },
-          // });
+          const vmListResponse = await axios.get(
+            `${process.env.PROXMOX_API_URL}/cluster/resources?type=vm`,
+            {
+              headers,
+              httpsAgent,
+            }
+          );
+          const vmList = vmListResponse.data.data;
+          let newid = 100;
+          const usedIds = vmList.map((vm: { vmid: number }) => vm.vmid);
+          while (usedIds.includes(newid)) {
+            newid++;
+          }
+
+          const server = await prisma.server.create({
+            data: {
+              vmid: newid,
+              id_template: Number(pengajuan.id_template),
+              id_ip: ipAddress.id,
+              segment: segment,
+              user: pengajuan.user,
+              divisi: pengajuan.divisi,
+            },
+          });
+
+          const user = await prisma.user.findUnique({
+            where: {
+              username: username,
+            },
+            include: {
+              divisi: true,
+            },
+          });
+          const NamaAplikasi = nama_aplikasi.replace(/\s+/g, "-");
+          const data = {
+            newid,
+            name: `${NamaAplikasi}`,
+            target: `${selectedNode}`,
+            full: 1,
+            pool: pengajuan.divisi,
+            storage: `${user?.divisi.nama_storage}`,
+          };
+          const clone = await axios.post(
+            `${process.env.PROXMOX_API_URL}/nodes/${template.nodes}/qemu/${template.vmid}/clone`,
+            data,
+            { headers, httpsAgent }
+          );
+          let taskFinished = false;
+          const upid = clone.data.data;
+          const encodedUpid = encodeURIComponent(upid);
+          while (!taskFinished) {
+            const statusResponse = await axios.get(
+              `${process.env.PROXMOX_API_URL}/nodes/${template.nodes}/tasks/${encodedUpid}/status`,
+              {
+                headers,
+                httpsAgent,
+              }
+            );
+            if (statusResponse.data.data.status === "stopped") {
+              taskFinished = true;
+            } else {
+              await new Promise((resolve) => setTimeout(resolve, 5000));
+            }
+          }
+          const config = await axios.put(
+            `${process.env.PROXMOX_API_URL}/nodes/${selectedNode}/qemu/${newid}/config`,
+            {
+              memory: String(pengajuan.ram),
+              cores: Number(pengajuan.cpu),
+              net0: `virtio,bridge=${bridge}`,
+            },
+            { headers, httpsAgent }
+          );
+          const resize = await axios.put(
+            `${process.env.PROXMOX_API_URL}/nodes/${selectedNode}/qemu/${newid}/resize`,
+            {
+              disk: "scsi0",
+              size: `+${storage - 40}G`,
+            },
+            { headers, httpsAgent }
+          );
+          const startVm = await axios.post(
+            `${process.env.PROXMOX_API_URL}/nodes/${selectedNode}/qemu/${newid}/status/start`,
+            {},
+            { headers, httpsAgent }
+          );
+          await prisma.pengajuan.update({
+            where: { id: Number(id) },
+            data: {
+              status_pengajuan: "Selesai",
+              vmid: newid,
+            },
+          });
         } catch (error) {
           if (axios.isAxiosError(error)) {
             const axiosError = error as AxiosError;
@@ -303,7 +305,7 @@ export async function PUT(
       return NextResponse.json(
         {
           message: "Server is being created it will take 10 to 15 minutes",
-          data: "ok",
+          data: response,
         },
         { status: 200 }
       );
@@ -317,6 +319,7 @@ export async function PUT(
           id: "desc",
         },
       });
+
       if (taskOngoig) {
         return respondWithError(
           `VM with ID ${pengajuan.vmid_old} is currently being cloned or has another ongoing task.`,
@@ -339,8 +342,10 @@ export async function PUT(
 
       let ipAddress;
       let selectedNode = null;
+      let minUsage = Infinity;
+      let segmentHost: any;
+
       if (pengajuan.segment === "internal") {
-        selectedNode = "proxmox3";
         ipAddress = await prisma.ipAddress.findFirst({
           where: {
             type: "INTERNAL",
@@ -348,7 +353,6 @@ export async function PUT(
           },
         });
       } else if (pengajuan.segment === "backend") {
-        selectedNode = "proxmox2";
         ipAddress = await prisma.ipAddress.findFirst({
           where: {
             type: "BACKEND",
@@ -356,7 +360,6 @@ export async function PUT(
           },
         });
       } else if (pengajuan.segment === "frontend") {
-        selectedNode = "proxmox3";
         ipAddress = await prisma.ipAddress.findFirst({
           where: {
             type: "FRONTEND",
@@ -370,6 +373,42 @@ export async function PUT(
           `No available IP address found for segment ${pengajuan.segment}`,
           400
         );
+      }
+
+      const nodes = await prisma.host.findMany({
+        where: {
+          segment: segmentHost,
+        },
+        select: {
+          nama: true,
+        },
+      });
+
+      if (nodes.length === 0) {
+        return new Response("No hosts found for the specified segment", {
+          status: 404,
+        });
+      }
+
+      for (const node of nodes) {
+        const nodeStatusResponse = await axios.get(
+          `${process.env.PROXMOX_API_URL}/nodes/${node.nama}/status`,
+          {
+            headers,
+            httpsAgent,
+          }
+        );
+
+        const nodeStatus = nodeStatusResponse.data.data;
+        const cpuUsage = nodeStatus.cpu;
+        const ramUsage = nodeStatus.memory.used / nodeStatus.memory.total;
+
+        const usageScore = cpuUsage + ramUsage;
+
+        if (usageScore < minUsage) {
+          minUsage = usageScore;
+          selectedNode = node.nama;
+        }
       }
 
       const response = await prisma.pengajuan.update({
@@ -418,6 +457,13 @@ export async function PUT(
               divisi: true,
             },
           });
+
+          console.log(newid);
+          console.log(server.id_template);
+          console.log(ipAddress.id);
+          console.log(segment);
+          console.log(pengajuan.user);
+          console.log(pengajuan.divisi);
 
           await prisma.server.create({
             data: {
