@@ -1,25 +1,39 @@
-# Gunakan base image Node.js versi 20
-FROM node:20-alpine
+# Gunakan base image Alpine minimal
+FROM alpine:3.18
 
-# Set working directory
+# Install dependensi runtime untuk Node.js binary
+RUN apk add --no-cache libstdc++ libgcc
+
+# Salin file binary dari host (pastikan Anda copy terlebih dahulu)
+COPY node /usr/bin/node
+COPY npm /usr/bin/npm
+
+# Berikan permission executable
+RUN chmod +x /usr/bin/node /usr/bin/npm
+
+# Tambahkan symlink agar command "node" dan "npm" dikenali di PATH
+RUN ln -sf /usr/bin/node /usr/local/bin/node && \
+    ln -sf /usr/bin/npm /usr/local/bin/npm
+
+# Set direktori kerja
 WORKDIR /app
 
 # Salin file package.json dan package-lock.json
 COPY package*.json ./
 
-# Install dependencies
+# Install dependencies (pastikan punya folder node_modules jika offline)
 RUN npm install
 
-# Salin seluruh project ke dalam container
+# Salin semua isi project
 COPY . .
 
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Build project Next.js
+# Build Next.js
 RUN npm run build
 
-# Expose port untuk aplikasi
+# Buka port 3000
 EXPOSE 3000
 
 # Jalankan aplikasi
