@@ -28,6 +28,7 @@ yarn-error.log*
 .env*.local
 
 as_service.tar
+node20.tar
 
 # vercel
 .vercel
